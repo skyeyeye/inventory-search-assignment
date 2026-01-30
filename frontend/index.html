@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inventory Search</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+    input, select, button {
+      margin: 5px;
+      padding: 5px;
+    }
+    table {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Inventory Search</h2>
+
+  <input type="text" id="search" placeholder="Search product name" />
+
+  <select id="category">
+    <option value="">All Categories</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Furniture">Furniture</option>
+    <option value="Fashion">Fashion</option>
+  </select>
+
+  <input type="number" id="minPrice" placeholder="Min Price" />
+  <input type="number" id="maxPrice" placeholder="Max Price" />
+
+  <button onclick="searchInventory()">Search</button>
+
+  <div id="message"></div>
+
+  <table id="resultsTable">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+  async function searchInventory() {
+    const q = document.getElementById("search").value;
+    const category = document.getElementById("category").value;
+    const minPrice = document.getElementById("minPrice").value;
+    const maxPrice = document.getElementById("maxPrice").value;
+
+    let url = "http://localhost:3000/search?";
+    if (q) url += `q=${q}&`;
+    if (category) url += `category=${category}&`;
+    if (minPrice) url += `minPrice=${minPrice}&`;
+    if (maxPrice) url += `maxPrice=${maxPrice}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const tbody = document.querySelector("#resultsTable tbody");
+    tbody.innerHTML = "";
+
+    if (data.length === 0) {
+      document.getElementById("message").innerText = "No results found";
+      return;
+    }
+
+    document.getElementById("message").innerText = "";
+
+    data.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.category}</td>
+        <td>$${item.price}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+</script>
+
+</body>
+</html>
